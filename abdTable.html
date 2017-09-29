@@ -1,0 +1,44 @@
+<md-content class="layout-column" ng-if="ctrl.keepTable">
+  <md-list>
+    <md-list class="layout-row headers-row" ng-style="ctrl.headerPosition()">
+
+      <md-subheader ng-style="ctrl.getFieldSize($index)" ng-repeat="header in ctrl.headers track by $index" ng-if="header.show_on_mobile || ctrl.$mdMedia('gt-xs')">
+        <span>{{header.name}}</span>
+        <a href="" ng-click="ctrl.orderFunc(header.alias)" ng-if="header.sort"><md-icon md-svg-icon="sort_by_alpha"></md-icon></a>
+        <a href="" show-menu="ctrl.closeMenu(header.alias)" ng-click="ctrl.openMenu(header.alias)" ng-if="header.filter"><md-icon md-svg-icon="filter_list"></md-icon></a>
+        <a href="" ng-click="ctrl.deleteFilter(header.alias)" ng-if="ctrl.isCleanable[header.alias]"><md-icon class="red-icon" md-svg-icon="delete_forever"></md-icon></a>
+        <bo-filter-table show-menu="ctrl.closeMenu(header.alias)" ng-if="header.filter" ng-show="ctrl.showMenu[header.alias]" filter="ctrl.filterFunc(header.alias, filterTab)" opened="ctrl.showMenu[header.alias]" list="ctrl.filterList[header.alias]" delete-all="ctrl.deleteFilter[header.alias]"></bo-filter-table>
+      </md-subheader>
+
+      <md-subheader ng-if="ctrl.isDeletable" class="delete-header">
+        <md-checkbox ng-model="ctrl.areChecked" aria-label="delete-all" md-no-focused></md-checkbox>
+      </md-subheader>
+    </md-list>
+
+    <md-divider></md-divider>
+
+    <div layout layout-align="center center" layout-padding ng-if="ctrl.dynamicItems.numItems == 0 && !ctrl.isLoading">
+      Aucun résultat ne correspond à vos filtres.
+    </div>
+
+    <div class="virtual-repeat-style-filter" layout="column" layout-align="center center" ng-style="ctrl.getVirtualHeight()" ng-if="ctrl.isLoading && ctrl.dynamicItems.numItems != 0">
+      <md-progress-circular class="md-primary md-hue-2" md-mode="indeterminate"></md-progress-circular>
+    </div>
+    <bo-virtual-repeat-container id="virtual-repeat" ng-style="ctrl.getVirtualHeight()" container-size="ctrl.containerSize">
+      <div class="flex cursor" bo-virtual-repeat="row in ctrl.dynamicItems" md-on-demand>
+        <md-list class="flex layout-row layout-align-center-center row-bo-table" ng-click="ctrl.changeState(row.id)" ng-style="ctrl.rowColor(row.color)">
+          <md-list-item ng-repeat="header in ctrl.headers track by $index" ng-if="header.show_on_mobile || ctrl.$mdMedia('gt-xs')" ng-style="ctrl.getFieldSize($index)">
+            <span ng-if="!header.is_html" ng-style="ctrl.getSpanStyle(header.style)"> {{row[header.alias]}}</span>
+            <div class="layout-fill layout-column layout-align-center-start" ng-if="header.is_html" ng-bind-html="row[header.alias] | trustAsHtml" ng-style="ctrl.getSpanStyle(header.style)"></div>
+          </md-list-item>
+
+          <md-list-item class="delete-column" ng-if="ctrl.isDeletable">
+            <md-checkbox ng-model="isChecked" ng-change="ctrl.addDeletableItem(row.id, isChecked)" aria-label="delete" ng-checked="ctrl.areChecked" md-no-focused></md-checkbox>
+          </md-list-item>
+        </md-list>
+        <md-divider flex></md-divider>
+      </div>
+    </bo-virtual-repeat-container>
+
+  </md-list>
+</md-content>
